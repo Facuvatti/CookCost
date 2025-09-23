@@ -1,0 +1,24 @@
+body {
+    font-family: sans-serif;
+    align-items: center;
+    background-color: #384051;
+}
+.container {
+    width: 50vw;
+    height: 650px;
+    overflow: hidden;
+    border: 1px solid black;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2em;
+}
+.container > div {
+    padding-left: 50px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.add {
+    margin-left: 10px;
+}
