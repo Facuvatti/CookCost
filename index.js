@@ -53,15 +53,21 @@ app.get("/ingredients", (req, res) => {
   });
 });
 app.get("/recipes", (req, res) => {
-  const query = "SELECT * FROM recipes";
-  connection.query(query, (err, results) => {
-    if (err) {
-      console.error("Error al listar recetas:", err);
-      return res.status(500).json({ error: "Error al obtener recetas" });
+      const query =`    
+      SELECT r.name AS recipe,i.name AS ingredient, ri.quantity,i.unit, (ri.quantity * i.price) AS cost
+      FROM recipe_ingredients AS ri 
+      JOIN recipes AS r ON ri.recipe = r.id 
+      JOIN ingredients i ON ri.ingredient = i.id
+      ORDER BY r.id`;
+      connection.query(query, (err, results) => {
+        if (err) {
+          console.error("Error al obtener ingredientes:", err);
+          return res.status(500).json({ error: "Error al obtener ingredientes" });
+        }
+        res.json(results);
     }
-    res.json(results);
-  });
-})
+  );
+});
 // Crear receta
 app.post("/recipes", (req, res) => {
   const { name } = req.body;

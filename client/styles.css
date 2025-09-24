@@ -4,7 +4,7 @@ body {
     background-color: #384051;
 }
 .container {
-    width: 50vw;
+    width: 40vw;
     height: 650px;
     overflow: hidden;
     border: 1px solid black;
@@ -14,11 +14,19 @@ body {
     margin-bottom: 2em;
 }
 .container > div {
-    padding-left: 50px;
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-evenly;
 }
 .add {
     margin-left: 10px;
+}
+div > h3 {
+    margin : 5px;
+    color: white;
+    font-weight: normal;
+}
+.item {
+    justify-content: space-around;
 }
