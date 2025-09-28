@@ -24,7 +24,6 @@ const connection = mysql.createConnection({
 
 // --- ENDPOINTS ---
 
-// Crear ingrediente
 app.post("/ingredients", (req, res) => {
   const { name, price, unit } = req.body;
 
@@ -35,8 +34,10 @@ app.post("/ingredients", (req, res) => {
       return res.status(500).json({ error: "Error al crear ingrediente" });
     }
     res.status(201).json({
-      message: "Ingrediente creado",
-      id: result.insertId,
+      id : result.insertId,
+      name : name,
+      price: price,
+      unit : unit
     });
   });
 });
@@ -52,86 +53,98 @@ app.get("/ingredients", (req, res) => {
     res.json(results);
   });
 });
-app.get("/recipes", (req, res) => {
+app.get("/ingredients/:id", (req, res) => {
+  
+  const ingredientId = req.params.id;
+  const query = "SELECT * FROM ingredients WHERE id = ?";
+  connection.query(query, [ingredientId], (err, results) => {
+    if (err) {
+      console.error("Error al obtener ingrediente:", err);
+      return res.status(500).json({ error: "Error al obtener ingrediente" });
+    }
+    res.json(results[0]);
+  });
+})
+app.delete("/ingredients/:id", (req, res) => {
+  const ingredientId = req.params.id;
+  connection.query("DELETE FROM ingredients WHERE id = ?", [ingredientId], (err, result) => {
+    if(err) {
+      console.error("Error al eliminar ingrediente:", err);
+      return res.status(500).json({ error: "Error al eliminar ingrediente" });
+    }
+    res.status(200).json({ message: "Ingrediente eliminado", result: result });
+  })
+})
+app.patch("/ingredients/:id", (req, res) => {
+  const ingredientId = req.params.id;
+  const { price, unit } = req.body;
+  connection.query("UPDATE ingredients SET price = ?, unit = ? WHERE id = ?", [price, unit, ingredientId], (err, result) => {
+    if(err) {
+      console.error("Error al actualizar ingrediente:", err);
+      return res.status(500).json({ error: "Error al actualizar ingrediente" });
+    }
+    res.status(200).json({ message: "Ingrediente actualizado", price:price, unit:unit });
+  })
+})
+
+app.delete("/recipes/:name", (req, res) => {
+  const recipe = req.params.id;
+  const query = "DELETE FROM recipes WHERE name = ?";
+  connection.query(query, [recipe], (err, result) => {
+    if (err) {
+      console.error("Error al eliminar receta:", err);
+      return res.status(500).json({ error: "Error al eliminar receta" });
+    }
+    res.status(200).json(result);
+  });
+})
+app.get("/recipes/name", (req, res) => {
+  const query = "SELECT DISTINCT name FROM recipes;";
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("Error al listar recetas:", err);
+      return res.status(500).json({ error: "Error al obtener recetas" });
+    }
+    res.json(results);
+  });
+})
+app.get("/recipe/:name", (req, res) => {
+  let recipe = req.params.name;
+  recipe = recipe.replace(/%20/g, ' ');
+  connection.query(`    
+    SELECT SUM(r.quantity * i.price) AS total
+    FROM recipes AS r JOIN ingredients AS i ON r.ingredient = i.id 
+    GROUP BY r.name
+    HAVING r.name = ?`, [recipe], (err, total) => {
+      if (err) {
+        console.error("Error al obtener ingredientes:", err);
+        return res.status(500).json({ error: "Error al obtener ingredientes" });
+      }
       const query =`    
-      SELECT r.name AS recipe,i.name AS ingredient, ri.quantity,i.unit, (ri.quantity * i.price) AS cost
-      FROM recipe_ingredients AS ri 
-      JOIN recipes AS r ON ri.recipe = r.id 
-      JOIN ingredients i ON ri.ingredient = i.id
-      ORDER BY r.id`;
-      connection.query(query, (err, results) => {
+      SELECT * FROM recipe_ingredients AS ri
+      WHERE name = ?`;
+      connection.query(query, [recipe], (err, results) => {
         if (err) {
           console.error("Error al obtener ingredientes:", err);
           return res.status(500).json({ error: "Error al obtener ingredientes" });
         }
+        results["total"] = total[0];
         res.json(results);
+      });
     }
   );
-});
-// Crear receta
-app.post("/recipes", (req, res) => {
-  const { name } = req.body;
 
-  const query = "INSERT INTO recipes (name) VALUES (?)";
-  connection.query(query, [name], (err, result) => {
+});
+app.post("/recipes/", (req, res) => {
+  const { name,ingredient, quantity } = req.body;
+  const query = "INSERT INTO recipes (name, ingredient, quantity) VALUES (?, ?, ?)";
+  connection.query(query, [name, ingredient, quantity], (err, result) => {
     if (err) {
-      console.error("Error al crear receta:", err);
-      return res.status(500).json({ error: "Error al crear receta" });
+      console.error("Error al agregar ingrediente a receta:", err);
+      return res.status(500).json({ error: "Error al agregar ingrediente a receta" });
     }
-    res.status(201).json({
-      message: "Receta creada",
-      id: result.insertId,
-    });
+    res.status(201).json(result);
   });
-});
-
-app.get("/recipes/:id/ingredients", (req, res) => {
-  const recipeId = req.params.id;
-
-  connection.query(`    
-    SELECT SUM(ri.quantity * i.price) AS total
-    FROM recipe_ingredients AS ri
-    JOIN recipes AS r ON ri.recipe = r.id
-    JOIN ingredients i ON ri.ingredient = i.id 
-    GROUP BY r.id
-    HAVING r.id = ?`, [recipeId], (err, total) => {
-    if (err) {
-      console.error("Error al obtener ingredientes:", err);
-      return res.status(500).json({ error: "Error al obtener ingredientes" });
-    }
-    // Verifico si la receta existe
-    connection.query(
-      "SELECT name FROM recipes WHERE id = ?",
-      [recipeId],
-      (err, recipeResults) => {
-        if (err) {
-          console.error("Error al buscar receta:", err);
-          return res.status(500).json({ error: "Error al buscar receta" });
-        }
-        if (recipeResults.length === 0) {
-          return res.status(404).json({ error: "Receta no encontrada" });
-        }
-        const query =`    
-        SELECT i.name AS ingredient, ri.quantity,i.unit, (ri.quantity * i.price) AS cost
-        FROM recipe_ingredients AS ri 
-        JOIN recipes AS r ON ri.recipe = r.id 
-        JOIN ingredients i ON ri.ingredient = i.id
-        WHERE recipe_id = ?`;
-        connection.query(query, [recipeId], (err, results) => {
-          if (err) {
-            console.error("Error al obtener ingredientes:", err);
-            return res.status(500).json({ error: "Error al obtener ingredientes" });
-          }
-          results["recipe"] = recipeResults[0];
-          results["total"] = total[0];
-          res.json(results);
-        });
-      }
-    );
-  });
-});
-app.patch("/recipes/", (req, res) => {
-  
 })
 // Iniciar el servidor
 app.listen(3000, () => {

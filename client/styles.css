@@ -2,31 +2,79 @@ body {
     font-family: sans-serif;
     align-items: center;
     background-color: #384051;
+
+}
+input {
+    font-family: sans-serif;
 }
 .container {
-    width: 40vw;
-    height: 650px;
+    min-width: 40vw;
+    width: fit-content;
+    min-height: 650px;
+    height: fit-content;
     overflow: hidden;
     border: 1px solid black;
     border-radius: 25px;
     display: flex;
     flex-direction: column;
     margin-bottom: 2em;
+    align-content: center;
+    
 }
-.container > div {
+.container > tr {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-evenly;
+    
 }
 .add {
     margin-left: 10px;
 }
-div > h3 {
+tr > td {
     margin : 5px;
     color: white;
-    font-weight: normal;
+    
 }
 .item {
     justify-content: space-around;
+}
+form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    object-fit: contain;
+
+}
+.title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5em;
+    padding: 0.5em;
+    color: white;
+}
+table {
+    padding-left: 25px;
+    padding-right: 25px;
+}
+form > .ingredient {
+    display: flex;
+    flex-direction: row;
+    color: white;
+    object-fit: contain;
+    height: 40px;
+    align-items: center;
+}
+form {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+#creating-recipes {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.recipe {
+    margin: 30px;
 }

@@ -1,37 +1,38 @@
 CREATE DATABASE cookcost;
 USE cookcost;
 
--- Tabla de recetas
-CREATE TABLE recipes (
-    id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id)
-);
-
--- Tabla de ingredientes
 CREATE TABLE ingredients (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     price FLOAT NOT NULL,
     unit VARCHAR(3) NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (name)
 );
 
--- Tabla intermedia (relación receta-ingrediente)
-CREATE TABLE recipe_ingredients (
+CREATE TABLE recipes(
     id INT NOT NULL AUTO_INCREMENT,
-    recipe INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
     ingredient INT NOT NULL,
     quantity FLOAT NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (recipe) REFERENCES recipes(id) ON DELETE CASCADE,
     FOREIGN KEY (ingredient) REFERENCES ingredients(id)
 );
+CREATE VIEW recipe_ingredients AS 
+    SELECT r.name,i.name AS ingredient, r.quantity,i.unit, (r.quantity * i.price) AS cost
+    FROM recipes AS r JOIN ingredients i ON r.ingredient = i.id
 
--- Vista para calcular costos por receta
-CREATE VIEW recipe_costs AS
-    SELECT r.name AS recipe, SUM(ri.quantity * i.price) AS cost
-    FROM recipe_ingredients AS ri
-    JOIN recipes AS r ON ri.recipe = r.id
-    JOIN ingredients i ON ri.ingredient = i.id 
-    GROUP BY r.id;
+INSERT INTO ingredients (name, price, unit) VALUES
+  ('Harina', 1.2, 'kg'),
+  ('Queso', 3.5, 'kg'),
+  ('Tomate', 2.1, 'kg');
+
+INSERT INTO recipes (name, ingredient, quantity) VALUES
+  ('Pizza Margarita', 1, 0.5),  -- 0.5 kg Harina
+  ('Pizza Margarita', 2, 0.3),  -- 0.3 kg Queso
+  ('Pizza Margarita', 3, 0.2),  -- 0.2 kg Tomate
+
+  ('Ensalada fresca', 3, 0.4),  -- 0.4 kg Tomate
+  ('Ensalada fresca', 2, 0.1),  -- 0.1 kg Queso
+
+  ('Tarta de verduras', 1, 0.3),-- 0.3 kg Harina
+  ('Tarta de verduras', 3, 0.25);-- 0.25 kg Tomate
