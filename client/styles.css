@@ -1,3 +1,6 @@
+h1,h2,h3,h4 {
+    margin : 0.5em;
+}
 body {
     font-family: sans-serif;
     align-items: center;
@@ -76,5 +79,5 @@ form {
     align-items: flex-start;
 }
 .recipe {
-    margin: 30px;
+    margin-inline-start: 30px;
 }

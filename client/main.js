@@ -1,11 +1,24 @@
-function createForm(e,containerID) {
+function createForm(e,containerID,action="creating",add_method="append",insertBefore="") {
     e.preventDefault();
-    if (document.querySelectorAll("#creating"+"-"+containerID).length == 0) {
+    if (document.querySelectorAll("#"+action+"-"+containerID).length == 0) {
         let form = document.createElement("form");
-        form.id = "creating"+"-"+containerID;
+
         form = confirmation(form);
         let container = document.getElementById(containerID)
-        container.append(form);
+        if(container.tagName == "TABLE") {
+            let tr = document.createElement("tr");
+            let td = document.createElement("td")
+            tr.id = action+"-"+containerID;
+            tr.append(td);
+            td.append(form);
+            container.append(td);
+
+        } else {
+            if(add_method == "append") container.append(form);
+            if(add_method == "prepend") container.prepend(form);
+            if(add_method == "insertBefore") container.insertBefore(form,insertBefore);
+            form.id = action+"-"+containerID;            
+        }
         return form;
     }
 }
@@ -52,14 +65,15 @@ function formResult(event) {
 function addIngredient(e,containerID) {
     let form = createForm(e,containerID);
     let name = createInput("name","Nombre");
-    let unit = createInput("unit","Unidad")
     let price = createInput("price","Precio");
+    let unit = createInput("unit","Unidad")
     form.prepend(name,price,unit);
     form.onsubmit = async (event) => {
         const result = await httpRequest(event, "http://localhost:3000/", "ingredients", "POST");
         document.getElementById("creating-"+containerID).remove();
         makeRow(result,containerID);
     }
+    
 }
 function selected(select){
     let selection = select.options[select.selectedIndex]
@@ -248,33 +262,104 @@ async function httpRequest(event,url,endpoint,method,body) { // Es un handler pa
 let recipes = await httpRequest(null,"http://localhost:3000/","recipes/name","GET")
 let ingredients = await httpRequest(null,"http://localhost:3000/","ingredients","GET")
 try {
-    
     for(let name of recipes.values()) {
         name = name.name.replace(/%20/g, ' ');
         let result = await httpRequest(null,"http://localhost:3000/","recipe/"+name,"GET");
         console.log("Recipes:", result);
         let div = document.createElement("div");
+        div.id = "recipe-"+name;
         div.classList.add("recipe");
-        let h3 = document.createElement("h3");
-        h3.textContent = name;
+        let buttons = document.createElement("div");
+        let h2 = document.createElement("h2");
+        h2.textContent = name;
         let table = document.createElement("table");
         table.id = name;
-        div.append(h3);
+        let patchIngredients = document.createElement("button");
+        patchIngredients.textContent = "+";
+        let selections = result.map(ingredient => String(ingredient.id));
+        let i = 1;
+        patchIngredients.onclick = async (event) => {     
+            event.preventDefault();
+            let last_div;
+            if(i > 1) {
+                let p = document.createElement("p");
+                p.style = "margin: 10px;";
+                p.textContent = capitalize(p.textContent);
+                let last_select = document.getElementById(String(i-1));
+                console.log(last_select);
+                let selection = selected(last_select);
+                selections.push(selection.value);
+                p.textContent = selection.textContent;
+                last_select.replaceWith(p);
+            }
+            
+            let div = document.createElement("div");
+            div.classList.add("ingredient");
+            let select = document.createElement("select");
+            select.id = i;
+            const ingredients = await httpRequest(null,"http://localhost:3000/","ingredients","GET");
+            let ids= ingredients.map(ingredient => String(ingredient.id));
+            let rest= ids.length -selections.length
+
+            if(rest == 0) {return;}
+            let form = createForm(event,"recipe-"+name,"modifiying","insertBefore",document.getElementById("recipe-"+name).lastChild);            
+            for (let ingredient of ingredients) {
+                if(selections.includes(String(ingredient.id))) continue;
+                let option = document.createElement("option");
+                option.value = ingredient.id;
+                option.textContent = ingredient.name;
+                select.append(option);
+            
+            }
+
+            let selection_id = selected(select).value;
+            let quantity = createInput("quantity","Cantidad");
+            quantity.setAttribute("row",selection_id);
+            let unit = document.createElement("p");
+            let selected_row = ingredients.find(ingredient => ingredient.id == selection_id);
+            unit.textContent = selected_row.unit;   
+            select.onchange = () => {
+                let selection_id = selected(select).value;
+                let selected_row = ingredients.find(ingredient => ingredient.id == selection_id);
+                unit.textContent = selected_row.unit;          
+            }
+            div.append(select,quantity,unit);
+            form.prepend(div);
+
+            form.onsubmit = async (event) => {
+                event.preventDefault();
+                for(let selection of selections) {
+                    let quantity = document.querySelector('input[row="'+selection+'"]').value;
+                    let result =await httpRequest(null, "http://localhost:3000/", "recipes/", "PATCH",{name:name,ingredient: selection,quantity: quantity });
+                    console.log("recipe patch:",result);
+                }     
+            }
+            i++;
+        }
+        let remove = document.createElement("button");
+        remove.textContent = "x";
+        remove.onclick = () => {
+            httpRequest(null,"http://localhost:3000/","recipe/"+name,"DELETE");
+            div.remove();
+        }
+        buttons.append(h2,patchIngredients,remove)
+        buttons.style = "display: flex; flex-direction: row;align-items:center;";
+        div.append(buttons);
+        let h3 = document.createElement("h3");
+        h3.style.fontWeight = "normal";
         div.append(table);
+        div.append(h3);
         document.getElementById("recipes").append(div);
         for(let row of result) {
             delete row.name;
             row.cost = row.cost.toFixed(2);
             makeRow(row,name);
-
         }
+        let total = result.reduce((costs,row) => costs + Number(row.cost),0);
+        h3.textContent = "TOTAL: $"+total.toFixed(2);   
+    
     }
     for(let ingredient of ingredients.values()) makeRow(ingredient,"ingredients");
 } catch(e) {console.log(e);}
-document.querySelector(".add_ingredient").addEventListener("click", e => {
-    addIngredient(e, "ingredients");
-});
-
-document.querySelector(".add_recipe").addEventListener("click", e => {
-    addRecipe(e, "recipes");
-});
+document.querySelector(".add_ingredient").onclick = e => {addIngredient(e, "ingredients");};
+document.querySelector(".add_recipe").onclick = e => {addRecipe(e, "recipes");};
