@@ -87,7 +87,7 @@ app.patch("/ingredients/:id", (req, res) => {
   })
 })
 
-app.delete("/recipes/:name", (req, res) => {
+app.delete("/recipe/:name", (req, res) => {
   const recipe = req.params.id;
   const query = "DELETE FROM recipes WHERE name = ?";
   connection.query(query, [recipe], (err, result) => {
@@ -135,10 +135,21 @@ app.get("/recipe/:name", (req, res) => {
   );
 
 });
-app.post("/recipes/", (req, res) => {
+app.post("/recipe/", (req, res) => {
   const { name,ingredient, quantity } = req.body;
   const query = "INSERT INTO recipes (name, ingredient, quantity) VALUES (?, ?, ?)";
   connection.query(query, [name, ingredient, quantity], (err, result) => {
+    if (err) {
+      console.error("Error al agregar ingrediente a receta:", err);
+      return res.status(500).json({ error: "Error al agregar ingrediente a receta" });
+    }
+    res.status(201).json(result);
+  });
+})
+app.patch("/recipe/", (req, res) => {
+  const {name,ingredient, quantity} = req.body
+  const query = "UPDATE recipes SET quantity = ? WHERE name = ? AND ingredient = ?";
+  connection.query(query, [quantity, name, ingredient], (err, result) => {
     if (err) {
       console.error("Error al agregar ingrediente a receta:", err);
       return res.status(500).json({ error: "Error al agregar ingrediente a receta" });

@@ -144,7 +144,7 @@ function addRecipe(e,containerID) {
             document.getElementById("creating-"+containerID).remove();
             for(let selection of selections) {
                 let quantity = document.querySelector('input[row="'+selection+'"]').value;
-                let result =await httpRequest(null, "http://localhost:3000/", "recipes/", "POST",{name:name,ingredient: selection,quantity: quantity });
+                let result =await httpRequest(null, "http://localhost:3000/", "recipe/", "POST",{name:name,ingredient: selection,quantity: quantity });
                 console.log("recipe post:",result);
             }     
         }
@@ -182,19 +182,18 @@ function makeRow(row,containerID) {
     let modify = document.createElement("button");
     modify.textContent = "*";
     modify.onclick = () => {
-        
         const tr = document.querySelector("#"+containerID+" > #r"+row.id);
-        const tr_children = Array.from(tr.children);
         let form = document.createElement("form");
         let td_form = document.createElement("td");
         form.id = row.id;
         form.style= "display: flex; flex-direction: row;";
-        for(let td of tr.children) {
+        for(let td of tr.cells)  {
+
             if(td.classList.contains("name")) {
                 let name = document.createElement("p");
                 name.textContent = td.textContent;
                 name.style = "margin: 10px;";
-                form.appendChild(name);
+                form.append(name);
                 continue
             }
             if(td.tagName == "BUTTON") continue;
@@ -203,20 +202,20 @@ function makeRow(row,containerID) {
             input.setAttribute("type","text");
             if(td.classList.contains("price") || td.classList.contains("cost")) td.textContent = td.textContent.slice(1);
             input.value = td.textContent;
-            form.appendChild(input);
+            form.append(input);
         }
         let confirm = document.createElement("button");
         confirm.setAttribute("type","submit");
         confirm.textContent = "Confirmar";
-        form.appendChild(confirm);
+        form.append(confirm);
         let cancel = document.createElement("button");
         cancel.setAttribute("type","button");
         cancel.textContent = "Cancelar";
         cancel.onclick = () => {
             td_form.remove();
-            tr_children.forEach(td => tr.appendChild(td));
+            // Agregar algo
         }
-        form.appendChild(cancel);
+        form.append(cancel);
         
         form.onsubmit = async (event) => {
             event.preventDefault();
@@ -228,9 +227,10 @@ function makeRow(row,containerID) {
             makeRow(row,containerID);
             console.log("Modificado:", result);
         }
-        td_form.appendChild(form);
-        tr.replaceChildren();
-        tr.appendChild(td_form);
+        td_form.append(form);
+        // Agregar algo
+        tr.append(td_form);
+        // Agregar algo
     }
     let remove = document.createElement("button");
     remove.textContent = "x";
@@ -238,10 +238,10 @@ function makeRow(row,containerID) {
         httpRequest(null,"http://localhost:3000/",containerID+"/"+row.id,"DELETE");
         tr.remove();
     }
-    tr.appendChild(modify);
-    tr.appendChild(remove);
+    tr.append(modify);
+    tr.append(remove);
     let container = document.getElementById(containerID);
-    container.appendChild(tr);
+    container.append(tr);
 }
 
 async function httpRequest(event,url,endpoint,method,body) { // Es un handler para formularios
@@ -267,18 +267,18 @@ try {
         let result = await httpRequest(null,"http://localhost:3000/","recipe/"+name,"GET");
         console.log("Recipes:", result);
         let div = document.createElement("div");
-        div.id = "recipe-"+name;
+        div.id = "recipe-"+name.replace(" ","-");
         div.classList.add("recipe");
         let buttons = document.createElement("div");
         let h2 = document.createElement("h2");
         h2.textContent = name;
         let table = document.createElement("table");
-        table.id = name;
-        let patchIngredients = document.createElement("button");
-        patchIngredients.textContent = "+";
+        table.id = name.replace(" ","-");
+        let newIngredient = document.createElement("button");
+        newIngredient.textContent = "+";
         let selections = result.map(ingredient => String(ingredient.id));
         let i = 1;
-        patchIngredients.onclick = async (event) => {     
+        newIngredient.onclick = async (event) => {     
             event.preventDefault();
             let last_div;
             if(i > 1) {
@@ -330,8 +330,8 @@ try {
                 event.preventDefault();
                 for(let selection of selections) {
                     let quantity = document.querySelector('input[row="'+selection+'"]').value;
-                    let result =await httpRequest(null, "http://localhost:3000/", "recipes/", "PATCH",{name:name,ingredient: selection,quantity: quantity });
-                    console.log("recipe patch:",result);
+                    let result =await httpRequest(null, "http://localhost:3000/", "recipe", "POST",{name:name,ingredient: selection,quantity: quantity });
+                    console.log("Ingrediente nuevo:",result);
                 }     
             }
             i++;
@@ -342,7 +342,7 @@ try {
             httpRequest(null,"http://localhost:3000/","recipe/"+name,"DELETE");
             div.remove();
         }
-        buttons.append(h2,patchIngredients,remove)
+        buttons.append(h2,newIngredient,remove)
         buttons.style = "display: flex; flex-direction: row;align-items:center;";
         div.append(buttons);
         let h3 = document.createElement("h3");
@@ -350,10 +350,13 @@ try {
         div.append(table);
         div.append(h3);
         document.getElementById("recipes").append(div);
+        i = 0;
         for(let row of result) {
             delete row.name;
+            row.id = i;
             row.cost = row.cost.toFixed(2);
-            makeRow(row,name);
+            makeRow(row,name.replace(" ","-"));
+            i++;
         }
         let total = result.reduce((costs,row) => costs + Number(row.cost),0);
         h3.textContent = "TOTAL: $"+total.toFixed(2);   
