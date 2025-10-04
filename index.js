@@ -88,12 +88,25 @@ app.patch("/ingredients/:id", (req, res) => {
 })
 
 app.delete("/recipe/:name", (req, res) => {
-  const recipe = req.params.id;
+  const recipe = req.params.name;
+  recipe = recipe.replace(/%20/g, ' ').replace(/-/g, ' ');
   const query = "DELETE FROM recipes WHERE name = ?";
   connection.query(query, [recipe], (err, result) => {
     if (err) {
       console.error("Error al eliminar receta:", err);
       return res.status(500).json({ error: "Error al eliminar receta" });
+    }
+    res.status(200).json(result);
+  });
+})
+app.delete("/recipe/:name/:ingredient", (req, res) => {
+  const recipe = req.params.name;
+  const ingredient = req.params.ingredient;
+  const query = "DELETE FROM recipe_ingredients WHERE r.name = ? AND i.id = ? ";
+  connection.query(query, [recipe,ingredient], (err, result) => {
+    if (err) {
+      console.error("Error al eliminar ingrediente de receta:", err);
+      return res.status(500).json({ error: "Error al eliminar ingrediente de receta" });
     }
     res.status(200).json(result);
   });
@@ -111,29 +124,15 @@ app.get("/recipes/name", (req, res) => {
 app.get("/recipe/:name", (req, res) => {
   let recipe = req.params.name;
   recipe = recipe.replace(/%20/g, ' ');
-  connection.query(`    
-    SELECT SUM(r.quantity * i.price) AS total
-    FROM recipes AS r JOIN ingredients AS i ON r.ingredient = i.id 
-    GROUP BY r.name
-    HAVING r.name = ?`, [recipe], (err, total) => {
-      if (err) {
-        console.error("Error al obtener ingredientes:", err);
-        return res.status(500).json({ error: "Error al obtener ingredientes" });
-      }
-      const query =`    
-      SELECT * FROM recipe_ingredients AS ri
-      WHERE name = ?`;
+  const query =`SELECT * FROM recipe_ingredients AS ri WHERE name = ?`;
       connection.query(query, [recipe], (err, results) => {
         if (err) {
           console.error("Error al obtener ingredientes:", err);
           return res.status(500).json({ error: "Error al obtener ingredientes" });
         }
-        results["total"] = total[0];
         res.json(results);
-      });
     }
   );
-
 });
 app.post("/recipe/", (req, res) => {
   const { name,ingredient, quantity } = req.body;

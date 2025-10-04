@@ -18,7 +18,7 @@ CREATE TABLE recipes(
     FOREIGN KEY (ingredient) REFERENCES ingredients(id)
 );
 CREATE VIEW recipe_ingredients AS 
-    SELECT r.name,i.name AS ingredient, r.quantity,i.unit, (r.quantity * i.price) AS cost
+    SELECT r.name,i.name AS ingredient, r.quantity,i.unit, (r.quantity * i.price) AS cost,i.id
     FROM recipes AS r JOIN ingredients i ON r.ingredient = i.id
 
 INSERT INTO ingredients (name, price, unit) VALUES
