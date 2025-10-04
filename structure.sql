@@ -1,4 +1,4 @@
-CREATE DATABASE cookcost;
+CREATE DATABASE IF NOT EXISTS cookcost;
 USE cookcost;
 
 CREATE TABLE ingredients (
@@ -9,7 +9,7 @@ CREATE TABLE ingredients (
     PRIMARY KEY (name)
 );
 
-CREATE TABLE recipes(
+CREATE TABLE IF NOT EXISTS recipes(
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     ingredient INT NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE recipes(
     PRIMARY KEY (id),
     FOREIGN KEY (ingredient) REFERENCES ingredients(id)
 );
-CREATE VIEW recipe_ingredients AS 
+CREATE VIEW IF NOT EXISTS recipe_ingredients AS 
     SELECT r.name,i.name AS ingredient, r.quantity,i.unit, (r.quantity * i.price) AS cost,i.id
     FROM recipes AS r JOIN ingredients i ON r.ingredient = i.id
 
