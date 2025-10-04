@@ -20,11 +20,3 @@ jobs:
 
       - name: Run server
         run: node index.js
-      - name: Install Cloudflare Tunnel
-        run: npm install -g cloudflared
-      
-      - name: Start server with tunnel
-        run: |
-          npm start &
-          sleep 5
-          cloudflared tunnel --url http://localhost:3000
