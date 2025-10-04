@@ -1,20 +1,16 @@
-// importar librerias
+// Libraries
 const express = require('express');
 const mysql   = require('mysql');
 const cors    = require('cors'); 
 
-// crear objeto app
+
 const app = express();
-// para evitar errores de CORS porque las 
-// peticiones del cliente son a un dominio 
-// distinto a si mismo
+// to avoid CORS errors because the client 
+// requests are a diferent domain
+// than itself
 app.use(cors());
-// parsear cuerpos de peticiones en JSON
 app.use(express.json());
 
-// conectarse a la base de datos
-// hay que pasar en un objeto los datos de conexion
-// ajustar de acuerdo a la instalacion de cada uno
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
