@@ -1,0 +1,30 @@
+name: Run Backend
+
+on:
+  workflow_dispatch: # esto crea el botón "Run workflow"
+
+jobs:
+  run-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run server
+        run: npm start
+      - name: Install Cloudflare Tunnel
+        run: npm install -g cloudflared
+      
+      - name: Start server with tunnel
+        run: |
+          npm start &
+          sleep 5
+          cloudflared tunnel --url http://localhost:3000
