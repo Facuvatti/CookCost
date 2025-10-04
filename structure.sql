@@ -6,7 +6,7 @@ CREATE TABLE ingredients (
     name VARCHAR(255) NOT NULL,
     price FLOAT NOT NULL,
     unit VARCHAR(3) NOT NULL,
-    PRIMARY KEY (name)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS recipes(
