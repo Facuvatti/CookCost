@@ -19,7 +19,7 @@ jobs:
         run: npm install
 
       - name: Run server
-        run: npm start
+        run: node index.js
       - name: Install Cloudflare Tunnel
         run: npm install -g cloudflared
       
