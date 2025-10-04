@@ -29,7 +29,7 @@ jobs:
 
       - name: Load database schema
         run: |
-          mysql --user=root --password=${{ secrets.MYSQL_ROOT_PASSWORD }} cookcost < structure.sql    
+          mysql --host=127.0.0.1 --user=root --password=${{ secrets.MYSQL_ROOT_PASSWORD }} cookcost < structure.sql    
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
