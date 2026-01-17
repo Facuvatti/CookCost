@@ -22,6 +22,7 @@ function createForm(e,containerID,action="creating",add_method="append",insertBe
         return form;
     }
 }
+
 function createSelection(options,selections,select=undefined) {
     if (select == undefined) {
         select = document.createElement("select");
