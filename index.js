@@ -84,7 +84,7 @@ app.patch("/ingredients/:id", (req, res) => {
 })
 
 app.delete("/recipe/:name", (req, res) => {
-  const recipe = req.params.name;
+  let recipe = req.params.name;
   recipe = recipe.replace(/%20/g, ' ').replace(/-/g, ' ');
   const query = "DELETE FROM recipes WHERE name = ?";
   connection.query(query, [recipe], (err, result) => {
