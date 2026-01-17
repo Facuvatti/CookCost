@@ -14,7 +14,7 @@ app.use(express.json());
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'root',
+  password: '',
   database: 'cookcost'
 });
 
@@ -96,9 +96,10 @@ app.delete("/recipe/:name", (req, res) => {
   });
 })
 app.delete("/recipe/:name/:ingredient", (req, res) => {
-  const recipe = req.params.name;
+  let recipe = req.params.name;
+  recipe = recipe.replace(/%20/g, ' ').replace(/-/g, ' ');
   const ingredient = req.params.ingredient;
-  const query = "DELETE FROM recipe_ingredients WHERE r.name = ? AND i.id = ? ";
+  const query = "DELETE r FROM recipes AS r JOIN ingredients AS i ON r.ingredient = i.id WHERE r.name = ? AND i.id = ? ";
   connection.query(query, [recipe,ingredient], (err, result) => {
     if (err) {
       console.error("Error al eliminar ingrediente de receta:", err);

@@ -2,7 +2,7 @@ function createForm(e,containerID,action="creating",add_method="append",insertBe
     e.preventDefault();
     if (document.querySelectorAll("."+action+"-"+containerID).length == 0 || !onlyOne) {
         let form = document.createElement("form");
-        form.className = "bg-white p-4 rounded-lg shadow-md space-y-3";
+        form.className = "bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md space-y-3";
         
         form = confirmation(form);
         let container = document.getElementById(containerID)
@@ -28,7 +28,7 @@ function createForm(e,containerID,action="creating",add_method="append",insertBe
 function createSelection(options,selections,select=undefined) {
     if (select == undefined) {
         select = document.createElement("select");
-        select.className = "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white";
+        select.className = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white";
     }
     for (let option of options) {
         if(selections.includes(option.id)) continue;
@@ -68,7 +68,7 @@ function createInput(name,placeholder) {
     input.setAttribute("type","text");
     input.setAttribute("placeholder",placeholder);
     input.name = name;
-    input.className = "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-400";
+    input.className = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 dark:text-white";
     return input;
 }
 
@@ -125,7 +125,7 @@ function addRecipe(e,containerID) {
         let last_div;
         if(i > 1) {
             let p = document.createElement("p");
-            p.className = "my-2 text-gray-700 font-medium";
+            p.className = "my-2 text-gray-700 dark:text-gray-300 font-medium";
             p.textContent = capitalize(p.textContent);
             let last_select = document.getElementById(String(i-1));
             console.log(last_select);
@@ -136,10 +136,10 @@ function addRecipe(e,containerID) {
         }
         
         let div = document.createElement("div");
-        div.className = "ingredient flex items-center gap-2 p-2 bg-gray-50 rounded-md";
+        div.className = "ingredient flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded-md";
         let select = document.createElement("select");
         select.id = i;
-        select.className = "flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white";
+        select.className = "flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white";
         
         const ingredients = await httpRequest(null,"http://localhost:3000/","ingredients","GET");
         let rest= ingredients.length -selections.length
@@ -158,10 +158,10 @@ function addRecipe(e,containerID) {
         let selection_id = selected(select).value;
         let quantity = createInput("quantity","Cantidad");
         quantity.setAttribute("row",selection_id);
-        quantity.className = "w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent";
+        quantity.className = "w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white";
         
         let unit = document.createElement("p");
-        unit.className = "text-gray-600 font-medium min-w-[60px]";
+        unit.className = "text-gray-600 dark:text-gray-300 font-medium min-w-[60px]";
         let selected_row = ingredients.find(ingredient => ingredient.id == selection_id);
         unit.textContent = selected_row.unit;   
         select.onchange = () => {
@@ -191,7 +191,7 @@ function addRecipe(e,containerID) {
         name.remove();
         let p = document.createElement("p");
         p.textContent = capitalize(result.name);
-        p.className = "my-2 px-3 py-2 border border-gray-300 rounded-md text-lg font-semibold text-gray-800";
+        p.className = "my-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-lg font-semibold text-gray-800 dark:text-white dark:bg-gray-700";
         form.prepend(p,new_ingredient);
     }
 }
@@ -202,7 +202,7 @@ function capitalize(str) {
 
 function makeRow(row,containerID,db_table=undefined) {
     let tr = document.createElement("tr");
-    tr.className = "border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150";
+    tr.className = "border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150";
     
     if(db_table == undefined) db_table = containerID;
     try{tr.id = "r"+row.id;}
@@ -211,16 +211,16 @@ function makeRow(row,containerID,db_table=undefined) {
     for(let column in row) {
         if (column == "id") continue;
         let td = document.createElement("td");
-        td.className = "px-4 py-3 text-gray-700";
+        td.className = "px-4 py-3 text-gray-700 dark:text-gray-300";
         let cell = row[column];
         if(column == "name") {
             cell = capitalize(cell);
-            td.className += " font-medium text-gray-900";
+            td.className += " font-medium text-gray-900 dark:text-white";
         }
         td.textContent = cell;
         if (column == "price" || column == "cost") {
             td.textContent = "$" + cell;
-            td.className += " font-semibold text-green-600";
+            td.className += " font-semibold text-green-600 dark:text-green-400";
         }
         td.classList.add(column);
         tr.appendChild(td);
@@ -245,7 +245,7 @@ function makeRow(row,containerID,db_table=undefined) {
             if(td.classList.contains("name")) {
                 let name = document.createElement("p");
                 name.textContent = td.textContent;
-                name.className = "px-3 py-2 font-medium text-gray-900";
+                name.className = "px-3 py-2 font-medium text-gray-900 dark:text-white";
                 form.append(name);
                 continue
             }
@@ -253,7 +253,7 @@ function makeRow(row,containerID,db_table=undefined) {
             let input = document.createElement("input");
             input.name = td.classList[0];
             input.setAttribute("type","text");
-            input.className = "px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-32";
+            input.className = "px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-32 bg-white dark:bg-gray-700 dark:text-white";
             if(td.classList.contains("price") || td.classList.contains("cost")) td.textContent = td.textContent.slice(1);
             input.value = td.textContent;
             form.append(input);
@@ -292,9 +292,10 @@ function makeRow(row,containerID,db_table=undefined) {
     remove.textContent = "🗑️";
     remove.className = "px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors duration-200 shadow-sm";
     remove.onclick = () => {
+        console.log(containerID,db_table);
         if(row.id == undefined) row.id = row.name;
         if(db_table == "recipe" || db_table == "recipes") {
-            httpRequest(null,"http://localhost:3000/recipe/",+containerID+"/"+row.id,"DELETE");
+            httpRequest(null,"http://localhost:3000/recipe/",containerID+"/"+row.id,"DELETE");
         }
         httpRequest(null,"http://localhost:3000/",db_table+"/"+row.id,"DELETE");
         tr.remove();
@@ -334,21 +335,21 @@ try {
         
         let recipe_div = document.createElement("div");
         recipe_div.id = "recipe-"+name.replace(/ /g,"-");
-        recipe_div.className = "recipe bg-white rounded-lg shadow-md p-6 mb-6";
+        recipe_div.className = "recipe bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6 mt-4";
         
         let buttons = document.createElement("div");
         buttons.className = "flex items-center gap-3 mb-4";
         
         let h2_name = document.createElement("h2");
         h2_name.textContent = name;
-        h2_name.className = "text-2xl font-bold text-gray-800 flex-1";
+        h2_name.className = "text-2xl font-bold text-gray-800 dark:text-white flex-1";
         
         let table = document.createElement("table");
         table.id = name.replace(/ /g,"-");
         table.className = "w-full mb-4";
         
         let h3_total = document.createElement("h3");
-        h3_total.className = "text-xl font-semibold text-green-600 text-right";
+        h3_total.className = "text-xl font-semibold text-green-600 dark:text-green-400 text-right";
         
         let db_ingredients = Array.from(recipe_ingredients.map((ingredient) => ingredient.id))
         let selections = db_ingredients;
@@ -362,7 +363,7 @@ try {
             let last_div;
             
             let div = document.createElement("div");
-            div.className = "ingredient flex items-center gap-2 p-2 bg-gray-50 rounded-md";
+            div.className = "ingredient flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded-md";
 
             const ingredients = await httpRequest(null,"http://localhost:3000/","ingredients","GET");
             
@@ -378,10 +379,10 @@ try {
             
             let quantity = createInput("quantity","Cantidad");
             quantity.setAttribute("row",selection_id);
-            quantity.className = "w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent";
+            quantity.className = "w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white";
             
             let unit = document.createElement("p");
-            unit.className = "text-gray-600 font-medium min-w-[60px]";
+            unit.className = "text-gray-600 dark:text-gray-300 font-medium min-w-[60px]";
 
             let selected_row = ingredients.find(ingredient => ingredient.id == selection_id);
             unit.textContent = selected_row.unit;   
@@ -402,7 +403,7 @@ try {
                 if (j == 0) {
                     try {
                         let p = document.createElement("p");
-                        p.className = "my-2 text-gray-700 font-medium";
+                        p.className = "my-2 text-gray-700 dark:text-gray-300 font-medium";
                         p.textContent = capitalize(p.textContent);
                         let last_select = document.getElementById(String(i-1));
                         if(last_select != undefined){
@@ -456,3 +457,7 @@ try {
 
 document.querySelector(".add_ingredient").onclick = e => {addIngredient(e, "ingredients");};
 document.querySelector(".add_recipe").onclick = e => {addRecipe(e, "recipes");};
+function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('darkMode', isDark);
+}
