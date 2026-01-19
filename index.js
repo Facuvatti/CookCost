@@ -73,13 +73,13 @@ app.delete("/ingredients/:id", (req, res) => {
 })
 app.patch("/ingredients/:id", (req, res) => {
   const ingredientId = req.params.id;
-  const { price, unit } = req.body;
-  connection.query("UPDATE ingredients SET price = ?, unit = ? WHERE id = ?", [price, unit, ingredientId], (err, result) => {
+  const { name, price, unit } = req.body;
+  connection.query("UPDATE ingredients SET name = ?, price = ?, unit = ? WHERE id = ?", [name, price, unit, ingredientId], (err, result) => {
     if(err) {
       console.error("Error al actualizar ingrediente:", err);
       return res.status(500).json({ error: "Error al actualizar ingrediente" });
     }
-    res.status(200).json({ message: "Ingrediente actualizado", price:price, unit:unit });
+    res.status(200).json({ id:ingredientId, name:name, price:price, unit:unit });
   })
 })
 

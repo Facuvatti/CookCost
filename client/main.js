@@ -227,8 +227,7 @@ function makeRow(row,containerID,db_table=undefined) {
     }
     
     let tdButtons = document.createElement("td");
-    tdButtons.className = "px-4 py-3 text-right";
-    
+    tdButtons.className = "px-4 py-3 text-right buttons";
     let modify = document.createElement("button");
     modify.textContent = "✏️";
     modify.className = "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200 shadow-sm mr-2";
@@ -242,6 +241,7 @@ function makeRow(row,containerID,db_table=undefined) {
         form.id = row.id;
         
         for(let td of tr.cells)  {
+            if(td.classList.contains("buttons")) continue;  
             if(td.classList.contains("name")) {
                 let name = document.createElement("p");
                 name.textContent = td.textContent;
@@ -270,7 +270,7 @@ function makeRow(row,containerID,db_table=undefined) {
         cancel.textContent = "Cancelar";
         cancel.className = "px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium rounded-md transition-colors duration-200 shadow-sm";
         cancel.onclick = () => {
-            td_form.remove();
+            form.closest('tr')?.replaceWith(tr);
         }
         form.append(cancel);
         
