@@ -1,8 +1,9 @@
 import Editable from "./editable"
 import Ingredient from "./ingredient"
 import { useState, useEffect } from "react"
-import { getIngredients, deleteIngredient } from "../../Services/ingredients"
+import { getIngredients, deleteIngredient } from "../../services/ingredients"
 import type { IngredientType } from "../../types/ingredients"
+import { addIngredientStyle } from "../../tailwind"
 type Props = {
     ingredients: IngredientType[],
     setIngredients: React.Dispatch<React.SetStateAction<IngredientType[]>>
@@ -52,11 +53,11 @@ function IngredientsContainer() {
             <div className="title bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-4 transition-colors duration-200">
                 <div className="flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">INGREDIENTES</h1>
-                    <button onClick={()=>setAddIngredient(true)} className="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-bold text-2xl w-12 h-12 rounded-full transition-colors duration-200 shadow-md">+</button>
+                    <button onClick={()=>setAddIngredient(true)} className={addIngredientStyle}>+</button>
                 </div>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-200">
-                <table id="ingredients" className="w-full table-auto">
+                <table id="ingredients" className="w-full table-auto mb-4">
                     <tbody>
                     {!loading && <IngredientsList ingredients={Ingredients} setIngredients={setIngredients}/>}
                     {addIngredient && <Editable update={handleUpdate} create={true} done={setAddIngredient}/>}

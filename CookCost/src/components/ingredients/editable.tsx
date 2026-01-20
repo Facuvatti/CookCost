@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { IngredientOptionalId, IngredientType } from "../../types/ingredients.ts";
-import { updateIngredient, createIngredient } from "../../Services/ingredients.ts";
+import { inputStyle, confirmationStyle, rowStyle } from "../../tailwind.tsx";
+import { updateIngredient, createIngredient } from "../../services/ingredients.tsx";
 import type { Dispatch, SetStateAction } from "react";
 type IngredientFormProps = {
     ingredient?: IngredientOptionalId,
@@ -27,23 +28,25 @@ function Editable({ingredient, update, done,create=false}: IngredientFormProps) 
             setIsSaving(true)
             if(create) updated = await createIngredient(form)
             else if(ingredient?.id) updated = await updateIngredient(ingredient.id, form)
+            console.log(updated);
             if(updated) update(updated)
             else console.error("No se pudo guardar el ingrediente")
         } finally {
-            setIsSaving(false)
-            if(create) {done(false);}
+            if(create) done(false);
             else done(true)
+            setIsSaving(false)
+            window.location.reload()
         }
     }
     return (
-        <tr>
+        <tr className={rowStyle}>
             <td colSpan={3}>
-                <form>
-                    <input type="text" name="name" placeholder="Nombre" value={form.name} onChange={(e)=>handleChange(e)}></input>
-                    <input type="text" name="price" placeholder="Precio" value={form.price} onChange={(e)=>handleChange(e)}></input>
-                    <input type="text" name="unit" placeholder="Unidad" value={form.unit} onChange={(e)=>handleChange(e)}></input>
-                    <button type="submit" onSubmit={()=>handleSave} disabled={isSaving}>✅</button>
-                    <button type="button" onClick={()=>done} disabled={isSaving}>❌</button>
+                <form onSubmit={async(e)=>{e.preventDefault(); await handleSave()}} className="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md p-6">
+                    <input className={inputStyle} type="text" name="name" placeholder="Nombre" value={form.name} onChange={(e)=>handleChange(e)}></input>
+                    <input className={inputStyle} type="text" name="price" placeholder="Precio" value={form.price} onChange={(e)=>handleChange(e)}></input>
+                    <input className={inputStyle} type="text" name="unit" placeholder="Unidad" value={form.unit} onChange={(e)=>handleChange(e)}></input>
+                    <button type="submit"  className={confirmationStyle + "bg-green-500 hover:bg-green-600 text-white"}  disabled={isSaving}>✅</button>
+                    <button type="button" onClick={()=>{if(create) done(false); else done(true) }} className={confirmationStyle + "bg-gray-300 hover:bg-gray-400 text-gray-700"}  disabled={isSaving}>❌</button>
                 </form>
             </td>
         </tr>

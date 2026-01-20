@@ -1,0 +1,7 @@
+export const inputStyle = "px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-32 bg-white dark:bg-gray-700 dark:text-white" 
+export const confirmationStyle= "px-4 py-2 font-medium rounded-md transition-colors duration-200 shadow-sm";
+export const rowStyle = "border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150";
+export const addIngredientStyle = "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-md transition-colors duration-200 shadow-sm"
+export const tdStyle= "px-4 py-3 text-gray-700 dark:text-gray-300";
+export const modifyStyle= "px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200 shadow-sm mr-2";
+export const removeStyle= "px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors duration-200 shadow-sm";

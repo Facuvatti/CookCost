@@ -1,3 +1,4 @@
+import { modifyStyle, removeStyle, rowStyle, tdStyle } from "../../tailwind"
 import type { IngredientOptionalId, IngredientType } from "../../types/ingredients"
 import Editable from "./editable"
 import { useState } from "react"
@@ -13,13 +14,13 @@ function Ingredient({ingredient, onUpdate, onDelete}: Props) {
     if(isEditing && !isDone) return <Editable ingredient={ingredient} update={onUpdate} create={false} done={done}/>
     if(isDone === true) setIsEditing(false);
     return (
-        <tr data-id={ingredient.id}>
-            <td>{ingredient.name}</td>
-            <td>{ingredient.price}</td>
-            <td>{ingredient.unit}</td>
-            <td>      
-                <button type="button" onClick={()=>setIsEditing(true)}>✏️</button>
-                <button type="button" onClick={()=>onDelete(ingredient.id)}>🗑️</button>
+        <tr className={rowStyle} data-id={ingredient.id}>
+            <td className={tdStyle + " font-medium text-gray-900 dark:text-white"}>{ingredient.name}</td>
+            <td className={tdStyle + " font-medium text-gray-900 dark:text-white"}>{ingredient.price}</td>
+            <td className={tdStyle}>{ingredient.unit}</td>
+            <td className="px-4 py-3 text-right">      
+                <button className={modifyStyle} type="button" onClick={()=>setIsEditing(true)}>✏️</button>
+                <button className={removeStyle} type="button" onClick={()=>onDelete(ingredient.id)}>🗑️</button>
             </td>
         </tr>
     )
