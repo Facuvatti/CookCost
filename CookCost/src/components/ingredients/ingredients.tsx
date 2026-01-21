@@ -4,33 +4,9 @@ import { useState, useEffect } from "react"
 import { getIngredients, deleteIngredient } from "../../services/ingredients"
 import type { IngredientType } from "../../types/ingredients"
 import { addIngredientStyle } from "../../tailwind"
-type Props = {
-    ingredients: IngredientType[],
-    setIngredients: React.Dispatch<React.SetStateAction<IngredientType[]>>
-}
-function IngredientsList({ingredients, setIngredients}: Props) {
-  function handleUpdate(updated: IngredientType) {
-    setIngredients(prev =>
-      prev.map(i => i.id === updated.id ? updated : i)
-    )
-  }
+import ListElements from "../../utils/listElements"
 
-  function handleDelete(id: number) {
-    setIngredients(prev =>
-      prev.filter(i => i.id !== id)
-    )
-    deleteIngredient(id)
-  }
 
-  return ingredients.map(i => (
-    <Ingredient
-      key={i.id}
-      ingredient={i}
-      onUpdate={handleUpdate}
-      onDelete={handleDelete}
-    />
-  ))
-}
 function IngredientsContainer() {
     const [addIngredient,setAddIngredient] = useState(false)
     const [Ingredients, setIngredients] = useState<IngredientType[]>([])
@@ -59,7 +35,20 @@ function IngredientsContainer() {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-200">
                 <table id="ingredients" className="w-full table-auto mb-4">
                     <tbody>
-                    {!loading && <IngredientsList ingredients={Ingredients} setIngredients={setIngredients}/>}
+                    {!loading && 
+                        <ListElements 
+                            elements={Ingredients} 
+                            setElements={setIngredients} 
+                            renderElement={(element,handleUpdate,handleDelete)=>
+                                <Ingredient 
+                                    key={element.id} 
+                                    ingredient={element} 
+                                    onUpdate={handleUpdate} onDelete={handleDelete}
+                                />
+                            } 
+                            onDeleteApi={deleteIngredient}
+                        />
+                    }
                     {addIngredient && <Editable update={handleUpdate} create={true} done={setAddIngredient}/>}
                     </tbody>
                 </table>

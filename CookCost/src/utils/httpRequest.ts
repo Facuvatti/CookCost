@@ -1,4 +1,4 @@
-type method= "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+type method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 type anyObject = Record<string,unknown>;
 const backend = "http://localhost:3000/";
 
