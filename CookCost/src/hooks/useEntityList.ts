@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react"
-type WithId = {
-  id: number
-}
-type UseEntityListOptions<T extends WithId> = {
+type UseEntityListOptions<T> = {
   fetchAll: () => Promise<T[]>
 }
-export function useEntityList<T extends WithId>({ fetchAll }: UseEntityListOptions<T>) {
+export function useEntityList<T extends { id: number }>({ fetchAll }: UseEntityListOptions<T>) {
 	const [items, setItems] = useState<T[]>([])
 	const [loading, setLoading] = useState(true)
 	const [isAdding, setIsAdding] = useState(false)
@@ -27,9 +24,9 @@ export function useEntityList<T extends WithId>({ fetchAll }: UseEntityListOptio
 		}
 	}, [fetchAll])
 
-	function updateItem(updated: T) {
+	function updateItem(id: number, updated: T) {
 		setItems(prev =>
-			prev.map(i => i.id === updated.id ? updated : i)
+			prev.map(i => i.id === id ? updated : i)
 		)
 	}
 

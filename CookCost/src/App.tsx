@@ -1,5 +1,5 @@
 import './App.css'
-import Ingredients from './components/ingredients/ingredients'
+import Ingredients from './components/ingredients'
 import { useState, useEffect } from 'react'
 function App() {
     const [isDark, setIsDark] = useState<boolean>(()=>{

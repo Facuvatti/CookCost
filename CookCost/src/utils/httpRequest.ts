@@ -1,8 +1,7 @@
 type method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-type anyObject = Record<string,unknown>;
 const backend = "http://localhost:3000/";
 
-async function httpRequest(endpoint:string,method:method,body:anyObject | null=null,url=backend,credentials:boolean=false) { // Es un handler para formularios
+async function httpRequest(endpoint:string,method:method,body:Record<string,unknown> | null=null,url=backend,credentials:boolean=false) { // Es un handler para formularios
     const options:RequestInit = {
         method: method,
         headers: {
@@ -10,7 +9,7 @@ async function httpRequest(endpoint:string,method:method,body:anyObject | null=n
         }
     };
     if(credentials) options.credentials = "include";
-    let data:anyObject | undefined = undefined;
+    let data:Record<string,unknown> | undefined = undefined;
     if (body) data = {...body};
     options.body = JSON.stringify(data);
     const response = await fetch(url + endpoint, options)
