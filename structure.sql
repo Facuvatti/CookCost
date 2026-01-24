@@ -6,33 +6,45 @@ CREATE TABLE ingredients (
     name VARCHAR(255) NOT NULL,
     price FLOAT NOT NULL,
     unit VARCHAR(3) NOT NULL,
-    PRIMARY KEY (name)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE recipes(
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+CREATE TABLE recipe_ingredients (
+    id INT NOT NULL AUTO_INCREMENT,
+    recipe INT NOT NULL,
     ingredient INT NOT NULL,
     quantity FLOAT NOT NULL,
     PRIMARY KEY (id),
+    FOREIGN KEY (recipe) REFERENCES recipes(id) ON DELETE CASCADE,
     FOREIGN KEY (ingredient) REFERENCES ingredients(id)
 );
-CREATE VIEW recipe_ingredients AS 
-    SELECT r.name,i.name AS ingredient, r.quantity,i.unit, (r.quantity * i.price) AS cost,i.id
-    FROM recipes AS r JOIN ingredients i ON r.ingredient = i.id
-
+CREATE VIEW ri_view AS 
+    SELECT ri.id, r.name AS recipe, recipe AS recipe_id, i.name AS ingredient, ri.quantity, i.unit
+    FROM recipe_ingredients ri
+    JOIN ingredients i ON ri.ingredient = i.id
+    JOIN recipes r ON ri.recipe = r.id;
 INSERT INTO ingredients (name, price, unit) VALUES
   ('Harina', 1.2, 'kg'),
   ('Queso', 3.5, 'kg'),
   ('Tomate', 2.1, 'kg');
 
-INSERT INTO recipes (name, ingredient, quantity) VALUES
-  ('Pizza Margarita', 1, 0.5),  -- 0.5 kg Harina
-  ('Pizza Margarita', 2, 0.3),  -- 0.3 kg Queso
-  ('Pizza Margarita', 3, 0.2),  -- 0.2 kg Tomate
+INSERT INTO recipes (name) VALUES
+  ('Pizza Margarita'),  
+  ('Ensalada fresca'),  
+  ('Tarta de verduras');
 
-  ('Ensalada fresca', 3, 0.4),  -- 0.4 kg Tomate
-  ('Ensalada fresca', 2, 0.1),  -- 0.1 kg Queso
+INSERT INTO recipe_ingredients (recipe, ingredient, quantity) VALUES
+  (1, 1, 0.5),  
+  (1, 2, 0.3),
+  (1, 3, 0.2),
 
-  ('Tarta de verduras', 1, 0.3),-- 0.3 kg Harina
-  ('Tarta de verduras', 3, 0.25);-- 0.25 kg Tomate
+  (2, 3, 0.4),
+  (2, 2, 0.1),
+
+  (3, 1, 0.3),
+  (3, 3, 0.25);

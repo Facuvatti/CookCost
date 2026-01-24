@@ -1,31 +1,24 @@
 import Editable from "./editable"
 import Ingredient from "./ingredient"
-import { useState, useEffect } from "react"
-import { getIngredients, deleteIngredient } from "../../services/ingredients"
+import { getIngredients, deleteIngredient } from "../../services/crud"
 import type { IngredientType } from "../../types/ingredients"
 import { addIngredientStyle } from "../../tailwind"
 import ListElements from "../../utils/listElements"
+import useEntityList from "../../hooks/useEntityList"
 
-
-function IngredientsContainer() {
-    const [addIngredient,setAddIngredient] = useState(false)
-    const [Ingredients, setIngredients] = useState<IngredientType[]>([])
-    const [loading, setLoading] = useState(true)
-    useEffect(() => {
-        async function loadIngredients() {
-            const ApiIngredients = await getIngredients()
-            setIngredients(ApiIngredients)
-            setLoading(false)
-        }
-        loadIngredients()
-    },[])
-    function handleUpdate(updated: IngredientType) {
-        setIngredients(prev =>
-            prev.map(i => i.id === updated.id ? updated : i)
-        )
-    }
+function Ingredients() {
+  const {
+    items:ingredients,
+    setItems: setIngredients,
+    loading,
+    isAdding: addIngredient,
+    setIsAdding: setAddIngredient,
+    updateItem: update
+  } = useEntityList<IngredientType>({
+    fetchAll: getIngredients
+  })
     return (
-        <div className="container max-w-4xl mx-auto mb-8">
+        <div className="max-w-4xl mx-auto mb-8">
             <div className="title bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-4 transition-colors duration-200">
                 <div className="flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">INGREDIENTES</h1>
@@ -37,19 +30,19 @@ function IngredientsContainer() {
                     <tbody>
                     {!loading && 
                         <ListElements 
-                            elements={Ingredients} 
+                            elements={ingredients} 
                             setElements={setIngredients} 
-                            renderElement={(element,handleUpdate,handleDelete)=>
+                            renderElement={(element,update,handleDelete)=>
                                 <Ingredient 
                                     key={element.id} 
                                     ingredient={element} 
-                                    onUpdate={handleUpdate} onDelete={handleDelete}
+                                    onUpdate={update} onDelete={handleDelete}
                                 />
                             } 
                             onDeleteApi={deleteIngredient}
                         />
                     }
-                    {addIngredient && <Editable update={handleUpdate} create={true} done={setAddIngredient}/>}
+                    {addIngredient && <Editable update={update} create={true} done={setAddIngredient}/>}
                     </tbody>
                 </table>
             </div>
@@ -57,4 +50,4 @@ function IngredientsContainer() {
     )
 }
 
-export default IngredientsContainer
+export default Ingredients

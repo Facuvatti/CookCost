@@ -1,18 +1,17 @@
 import { useState } from "react";
 import type { IngredientOptionalId, IngredientType } from "../../types/ingredients.ts";
 import { inputStyle, confirmationStyle, rowStyle } from "../../tailwind.tsx";
-import { updateIngredient, createIngredient } from "../../services/ingredients.tsx";
+import { updateIngredient, createIngredient } from "../../services/crud.tsx";
 import type { Dispatch, SetStateAction } from "react";
-type IngredientFormProps = {
-    ingredient?: IngredientOptionalId,
-    update: (ingredient: IngredientType) => void,
+type EditableProps<T> = {
+    ingredient?: T,
+    update: (item: <T extends {id: number}>) => void,
     create?: boolean,
     done: Dispatch<SetStateAction<boolean>>
 }
 
-function Editable({ingredient, update, done,create=false}: IngredientFormProps) {
-    if( ingredient === undefined ) ingredient = { name: "", price: "", unit: "" }
-    const [form, setForm] = useState<IngredientOptionalId>(ingredient)
+function Editable<T>({ingredient, update, done,create=false}: EditableProps<T>) {
+    const [form, setForm] = useState<T>(undefined as T)
     const [isSaving, setIsSaving] = useState(false)
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         const { name, value } = e.target 
