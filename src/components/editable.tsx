@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { inputStyle, confirmationStyle, rowStyle } from "../tailwind.tsx";
 import type { Dispatch, SetStateAction } from "react";
-import type { InputConfig } from "../types/shared.ts";
+import type { FieldConfig } from "../types/shared.ts";
 type EditableProps<T> = {
     initialValue: T,
     create: (item: Omit< T, "id">) => unknown,
     update: (id: number, item: T) => unknown,
-    fields: InputConfig<T>[],
+    fields: FieldConfig<T>[],
     done: Dispatch<SetStateAction<boolean>>
 }
 function Editable<T extends { id?: number }>({initialValue, create, update, fields, done}: EditableProps<T>) {
@@ -38,19 +38,19 @@ function Editable<T extends { id?: number }>({initialValue, create, update, fiel
                 <form onSubmit={async(e)=>{e.preventDefault(); await handleSave()}} className="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md p-6">
                     {fields.map(field => (
                         <input
-                        className={inputStyle}
-                        key={String(field.name)}
-                        type={field.type ?? "text"}
-                        value={String(form[field.name] ?? "")}
-                        placeholder={field.placeholder}
-                        onChange={e =>
-                            handleChange(
-                            field.name,
-                            field.type === "number"
-                                ? Number(e.target.value) as T[keyof T]
-                                : e.target.value as T[keyof T]
-                            )
-                        }
+                            className={inputStyle}
+                            key={String(field.name)}
+                            type={field.type ?? "text"}
+                            value={String(form[field.name] ?? "")}
+                            placeholder={field.placeholder}
+                            onChange={e =>
+                                handleChange(
+                                field.name,
+                                field.type === "number"
+                                    ? Number(e.target.value) as T[keyof T]
+                                    : e.target.value as T[keyof T]
+                                )
+                            }
                         />
                     ))}         
                     <button type="submit"  className={confirmationStyle + "bg-green-500 hover:bg-green-600 text-white"}  disabled={isSaving}>✅</button>
