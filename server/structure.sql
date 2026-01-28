@@ -1,37 +1,35 @@
 CREATE DATABASE cookcost;
 USE cookcost;
 
-CREATE TABLE ingredients (
+CREATE TABLE cost_items (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     price FLOAT NOT NULL,
     unit VARCHAR(3) NOT NULL,
+    type ENUM("ingredient","service") NOT NULL,
     PRIMARY KEY (id)
 );
-
 CREATE TABLE recipes(
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
+    prepare_time INT NOT NULL,
     PRIMARY KEY (id)
 );
-CREATE TABLE recipe_ingredients (
+CREATE TABLE recipe_costs (
     id INT NOT NULL AUTO_INCREMENT,
     recipe INT NOT NULL,
-    ingredient INT NOT NULL,
+    item INT NOT NULL,
     quantity FLOAT NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (recipe) REFERENCES recipes(id) ON DELETE CASCADE,
-    FOREIGN KEY (ingredient) REFERENCES ingredients(id)
+    FOREIGN KEY (item) REFERENCES cost_items(id)
 );
-CREATE VIEW ri_view AS 
-    SELECT ri.id, r.name AS recipe, recipe AS recipe_id, i.name AS ingredient, ri.quantity, i.unit
-    FROM recipe_ingredients ri
-    JOIN ingredients i ON ri.ingredient = i.id
-    JOIN recipes r ON ri.recipe = r.id;
-INSERT INTO ingredients (name, price, unit) VALUES
-  ('Harina', 1.2, 'kg'),
-  ('Queso', 3.5, 'kg'),
-  ('Tomate', 2.1, 'kg');
+
+INSERT INTO cost_items (name, price, unit, type) VALUES
+  ('Harina', 1000, 'kg',"ingredient"),
+  ('Queso', 3500, 'kg',"ingredient"),
+  ('Tomate', 2100, 'kg',"ingredient"),
+  ("Gas", 1000, "l","service");
 
 INSERT INTO recipes (name) VALUES
   ('Pizza Margarita'),  

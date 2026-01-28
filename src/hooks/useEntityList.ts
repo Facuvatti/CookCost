@@ -3,31 +3,31 @@ type UseEntityListOptions<T> = {
   fetchAll: () => Promise<T[]>
 }
 export function useEntityList<T extends { id: number }>({ fetchAll }: UseEntityListOptions<T>) {
-	const [items, setItems] = useState<T[]>([])
-	const [loading, setLoading] = useState(true)
-	const [isAdding, setIsAdding] = useState(false)
+	const [items, setItems] = useState<T[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [isAdding, setIsAdding] = useState(false);
 
 	useEffect(() => {
-		let alive = true
+		let alive = true;
 
 		async function load() {
-			const data = await fetchAll()
+			const data = await fetchAll();
 			if (alive) {
-			setItems(data)
-			setLoading(false)
+				setItems(data);
+				setLoading(false);
 			}
 		}
 
-		load()
+		load();
 		return () => {
-			alive = false
+			alive = false;
 		}
 	}, [fetchAll])
 
 	function updateItem(id: number, updated: T) {
 		setItems(prev =>
 			prev.map(i => i.id === id ? updated : i)
-		)
+		);
 	}
 
 	return {

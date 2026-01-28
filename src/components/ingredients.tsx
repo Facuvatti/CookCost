@@ -8,7 +8,7 @@ import { useState } from "react"
 import { modifyStyle, removeStyle, rowStyle, tdStyle, addIngredientStyle  } from "../tailwind"
 // Types
 import type { IngredientType } from "../types/ingredients"
-import type { InputConfig, WithId, OptionalId } from "../types/shared"
+import type { FieldConfig, WithId, OptionalId } from "../types/shared"
 // Services
 import * as ingredientsApi from "../services/ingredients"
 type IngredientProps = {
@@ -17,17 +17,28 @@ type IngredientProps = {
     onUpdate(id: number, item: IngredientType): void,
     onDelete(id: number): void,
 }
-
+const form: FieldConfig<IngredientType>[] = [
+    { kind: "input", name: "name", attributes: {  type: "text", placeholder: "Ingrediente"} }, 
+    { kind: "input", name: "price", attributes: {  type: "text", placeholder: "Precio"} }, 
+    { kind: "input", name: "unit", attributes: { type: "text", placeholder: "Unidad"} }, 
+];
 function Ingredient({ingredient, onCreate, onUpdate, onDelete}: IngredientProps) {
     const [isEditing, setIsEditing] = useState(false)
-    const [isDone, done] = useState(false)
-    const form: InputConfig<IngredientType>[] = [
-        {name: "name", type: "text", placeholder: "Ingrediente"}, 
-        {name: "price", type: "text", placeholder: "Precio"}, 
-        {name: "unit", type: "text", placeholder: "Unidad"}
-    ];
-    if(isEditing && !isDone) return <Editable<OptionalId<IngredientType>> initialValue={ingredient} update={onUpdate} create={onCreate} fields = {form} done={done}/>
-    if(isDone === true) setIsEditing(false);
+    const [isDone, done] = useState<boolean | undefined>(undefined)
+
+    if(isEditing && !isDone) return (
+        <tr className={rowStyle}>
+            <td colSpan={3}>
+                <Editable<OptionalId<IngredientType>> 
+                    update={onUpdate} 
+                    create={onCreate} 
+                    fields={form} 
+                    done={()=>done(true)}
+                />
+            </td>
+        </tr>
+    )
+    if(isDone === true && isEditing) {setIsEditing(false); done(undefined)}
     return (
         <tr className={rowStyle} data-id={ingredient.id}>
             <td className={tdStyle + " font-medium text-gray-900 dark:text-white"}>{ingredient.name}</td>
@@ -50,11 +61,6 @@ function Ingredients() {
         setIsAdding: setAddIngredient,
         updateItem
     } = useEntityList<WithId<IngredientType>>({fetchAll:ingredientsApi.get})
-    const form: InputConfig<IngredientType>[] = [
-        {name: "name", type: "text", placeholder: "Ingrediente"}, 
-        {name: "price", type: "text", placeholder: "Precio"}, 
-        {name: "unit", type: "text", placeholder: "Unidad"}
-    ];
     return (
         <div className="max-w-4xl mx-auto mb-8">
             <div className="title bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-4 transition-colors duration-200">
@@ -86,15 +92,21 @@ function Ingredients() {
                             }}
                         />
                     }
-                    {addIngredient && <Editable<OptionalId<IngredientType>> 
-                    initialValue={{name: "", price: "", unit: ""}} 
-                    update={async (id, data) => {
-                        const updated = await ingredientsApi.update(id, data);
-                        updateItem(id,updated);
-                    }}
-                    create={ingredientsApi.create} 
-                    fields={form} 
-                    done={setAddIngredient}/>}
+                    {addIngredient && (
+                        <tr className={rowStyle}>
+                            <td colSpan={3}>
+                                <Editable<OptionalId<IngredientType>> 
+                                    update={async (id, data) => {
+                                        const updated = await ingredientsApi.update(id, data);
+                                        updateItem(id,updated);
+                                    }}
+                                    create={ingredientsApi.create} 
+                                    fields={form} 
+                                    done={()=>setAddIngredient(false)}
+                                />                
+                            </td>
+                        </tr>
+                    )}
                     </tbody>
                 </table>
             </div>
