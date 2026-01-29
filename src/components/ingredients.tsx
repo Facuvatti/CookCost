@@ -18,9 +18,9 @@ type IngredientProps = {
     onDelete(id: number): void,
 }
 const form: FieldConfig<IngredientType>[] = [
-    { kind: "input", name: "name", attributes: {  type: "text", placeholder: "Ingrediente"} }, 
-    { kind: "input", name: "price", attributes: {  type: "text", placeholder: "Precio"} }, 
-    { kind: "input", name: "unit", attributes: { type: "text", placeholder: "Unidad"} }, 
+    { kind: "input", name: "name", attributes: {  type: "text", placeholder: "Ingrediente", required: true} }, 
+    { kind: "input", name: "price", attributes: {  type: "text", placeholder: "Precio", required: true} }, 
+    { kind: "input", name: "unit", attributes: { type: "text", placeholder: "Unidad", required: true} }, 
 ];
 function Ingredient({ingredient, onCreate, onUpdate, onDelete}: IngredientProps) {
     const [isEditing, setIsEditing] = useState(false)
