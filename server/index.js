@@ -32,7 +32,7 @@ app.get("/ingredients", (req, res) => {
 		console.error("Error al listar ingredientes:", err);
 		return res.status(500).json({ error: "Error al obtener ingredientes" });
 	}
-	res.json(results);
+	res.status(200).json(results);
 	});
 });
 // - ONE -
@@ -45,7 +45,7 @@ app.get("/ingredients/:id", (req, res) => {
 		console.error("Error al obtener ingrediente:", err);
 		return res.status(500).json({ error: "Error al obtener ingrediente" });
 	}
-	res.json(results[0]);
+	res.status(200).json(results[0]);
 	});
 })
 
@@ -107,7 +107,7 @@ app.get("/recipes/list", (req, res) => {
 		console.error("Error al listar recetas:", err);
 		return res.status(500).json({ error: "Error al obtener recetas" });
 	}
-	res.json(results);
+	res.status(200).json(results);
 	});
 })
 // - ALL -
@@ -118,20 +118,31 @@ app.get("/recipes", (req, res) => {
 		console.error("Error al listar recetas:", err);
 		return res.status(500).json({ error: "Error al obtener recetas" });
 	}
-	results = results.reduce((acc, recipe_ingredient) => {
-		const name = recipe_ingredient.recipe;
-		delete recipe_ingredient.recipe
-		if(!acc[name]) { 
-			acc[name] = {id: recipe_ingredient.recipe_id, ingredients: [] };
+	const recipesMap = {};
+
+	results.forEach(row => {
+		const recipeName = row.recipe;
+		const recipeId = row.recipe_id;
+
+		if (!recipesMap[recipeId]) {
+			recipesMap[recipeId] = {
+				id: recipeId,
+				name: recipeName,
+				ingredients: []
+			};
 		}
-		delete recipe_ingredient.recipe_id
-		const ingredient_name = recipe_ingredient.ingredient
-		delete recipe_ingredient.ingredient
-		const ingredient = {[ingredient_name]: recipe_ingredient}
-		acc[name].ingredients.push(ingredient);
-		return acc
-	},{});
-	res.json(results);
+
+		recipesMap[recipeId].ingredients.push({
+			id: row.id,
+			name: row.ingredient,
+			quantity: row.quantity,
+			unit: row.unit
+		});
+	});
+
+	const recipesArray = Object.values(recipesMap);
+
+	res.status(200).json(recipesArray);
 	});
 })
 // - ONE -
@@ -154,7 +165,7 @@ app.get("/recipes/:id", (req, res) => {
 			delete ingredient.recipe_id;
 			return ingredient
 		})
-		res.json({[recipe]:{id: recipe_id,ingredients: results}});
+		res.status(200).json({[recipe]:{id: recipe_id,ingredients: results}});
 	}
   );
 });
@@ -173,10 +184,11 @@ app.post("/recipes", (req, res) => {
 	});
 })
 // - INGREDIENT -
-app.post("/recipes/ingredient/:id", (req, res) => {
-	const { recipe_id, ingredient, quantity } = req.body;
+app.post("/recipes/ingredient/:recipe", (req, res) => {
+	const recipe = req.params.recipe;
+	const { ingredient, quantity } = req.body;
 	const query = "INSERT INTO recipe_ingredients (recipe, ingredient, quantity) VALUES (?, ?, ?)";
-	connection.query(query, [recipe_id, ingredient, quantity], (err, result) => {
+	connection.query(query, [recipe, ingredient, quantity], (err, result) => {
 	if (err) {
 		console.error("Error al agregar ingrediente a receta:", err);
 		return res.status(500).json({ error: "Error al agregar ingrediente a receta" });
@@ -195,20 +207,21 @@ app.patch("/recipes/:id", (req, res) => {
 		console.error("Error al actualizar receta:", err);
 		return res.status(500).json({ error: "Error al actualizar receta" });
 	}
-	res.status(201).json(result);
+	res.status(200).json(result);
 	});
 })
 // - INGREDIENT -
 app.patch("/recipes/ingredient/:id", (req, res) => {
 	const id = req.params.id;
-	const {ingredient, quantity} = req.body
-	const query = "UPDATE recipe_ingredients WHERE recipe_id = ? SET quantity = ?  AND ingredient = ?";
-	connection.query(query, [id, quantity, ingredient], (err, result) => {
+	const {quantity} = req.body
+	const query = "UPDATE recipe_ingredients SET quantity = ? WHERE id = ? ";
+	connection.query(query, [quantity, id], (err, result) => {
 	if (err) {
 		console.error("Error al agregar ingrediente a receta:", err);
 		return res.status(500).json({ error: "Error al agregar ingrediente a receta" });
 	}
-	res.status(201).json(result);
+	console.log(result.message);
+	res.status(200).json(result);
 	});
 })
 // -- DELETE --

@@ -13,6 +13,7 @@ CREATE TABLE recipes(
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     prepare_time INT NOT NULL,
+    heat_amount FLOAT NOT NULL,
     PRIMARY KEY (id)
 );
 CREATE TABLE recipe_costs (
