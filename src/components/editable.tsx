@@ -29,6 +29,8 @@ function Editable<T extends { id?: number }>({ initialValues, create, update, fi
         }
     };
 
+    console.log('Editable component rendered');
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md p-6 flex flex-row gap-4 items-center">
             {

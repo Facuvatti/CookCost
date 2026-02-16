@@ -8,7 +8,7 @@ import { useState } from "react"
 import { modifyStyle, removeStyle, rowStyle, tdStyle, addIngredientStyle  } from "../tailwind.ts"
 // Types
 import type { IngredientType } from "../types/ingredients"
-import type { FieldConfig, WithId, OptionalId } from "../types/shared"
+import type { FieldConfig, WithId } from "../types/shared"
 // Services
 import * as ingredientsApi from "../services/ingredients"
 type IngredientProps = {
@@ -29,9 +29,13 @@ function Ingredient({ingredient, onCreate, onUpdate, onDelete}: IngredientProps)
     if(isEditing && !isDone) return (
         <tr className={rowStyle}>
             <td colSpan={3}>
-                <Editable<OptionalId<IngredientType>> 
+                <Editable<IngredientType>
                     initialValues={ingredient}
-                    update={onUpdate} 
+                    update={(item) => {
+                        if (item.id !== undefined) {
+                            onUpdate(item.id, item as IngredientType);
+                        }
+                    }} 
                     create={onCreate} 
                     fields={form} 
                     done={()=>done(true)}
@@ -82,7 +86,7 @@ function Ingredients() {
                                     key={element.id} 
                                     ingredient={element} 
                                     onCreate={onCreate}
-                                    onUpdate={onUpdate} 
+                                    onUpdate={(id, item) => { onUpdate({ ...item, id }); }}
                                     onDelete={onDelete}
                                 />
                             } 
@@ -92,11 +96,12 @@ function Ingredients() {
                     {addIngredient && (
                         <tr className={rowStyle}>
                             <td colSpan={3}>
-                                <Editable<OptionalId<IngredientType>> 
-                                    initialValues={{name: "", price: "", unit: ""}}
-                                    update={async (id, data) => {
-                                        const updated = await ingredientsApi.update(id, data);
-                                        updateItem(id,updated);
+                                <Editable<IngredientType> 
+                                    initialValues={{}}
+                                    update={async (data) => {
+                                        if (typeof data.id !== "number") return;
+                                        const updated = await ingredientsApi.update(data as WithId<IngredientType>);
+                                        updateItem(data.id, updated);
                                     }}
                                     create={ingredientsApi.create} 
                                     fields={form} 
