@@ -1,6 +1,7 @@
 import './App.css'
 import Ingredients from './components/ingredients'
 import { useState, useEffect } from 'react'
+import Recipes from './components/recipes'
 function App() {
     const [isDark, setIsDark] = useState<boolean>(()=>{
         return localStorage.getItem("theme" )=== 'dark'
@@ -32,15 +33,7 @@ function App() {
             </button>
         </div>
         < Ingredients />
-        
-        <div className="container max-w-4xl mx-auto" id="recipes">
-            <div className="title bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-200">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white">RECETAS</h1>
-                    <button className="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-bold text-2xl w-12 h-12 rounded-full transition-colors duration-200 shadow-md">+</button>
-                </div>
-            </div>
-        </div>
+        < Recipes />
     </>
   )
 }

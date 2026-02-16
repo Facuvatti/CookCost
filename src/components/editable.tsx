@@ -1,23 +1,25 @@
-import { inputStyle, confirmationStyle } from "../tailwind.tsx";
-import { useForm }  from "react-hook-form";
-import type { FieldConfig } from "../types/shared.ts";
+import { inputStyle, confirmationStyle, selectStyle } from "../tailwind.ts";
+import { useForm, type DefaultValues }  from "react-hook-form";
+import type { FieldConfig, WithoutId } from "../types/shared.ts";
 type EditableProps<T> = {
-    create: (item: Omit< T, "id">) => unknown,
-    update: (id: number, item: T) => unknown,
+    initialValues: DefaultValues<T>
+    create: (item: WithoutId<T>) => unknown,
+    update: (item: T) => unknown,
     fields: FieldConfig<T>[],
     done: () => void,
     onSuccess?: () => void
 }
-function Editable<T extends { id?: number }>({ create, update, fields, done, onSuccess}: EditableProps<T>) {
+function Editable<T extends { id?: number }>({ initialValues, create, update, fields, done, onSuccess}: EditableProps<T>) {
     const {
         register,
         handleSubmit,
     } = useForm<T>({
         mode: "onChange", // Validación en tiempo real
+        defaultValues: initialValues
     });
     const onSubmit = async (data: T) => {
         try {
-            if (data.id) await update(data.id, data);
+            if (data.id) await update(data);
             else await create(data);
             done();
             onSuccess?.();
@@ -28,7 +30,7 @@ function Editable<T extends { id?: number }>({ create, update, fields, done, onS
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md p-6 flex flex-row gap-4 items-center">
             {
                 fields.map((field) => {
                     switch (field.kind) {
@@ -51,16 +53,13 @@ function Editable<T extends { id?: number }>({ create, update, fields, done, onS
                         case "select":
                             return (
                                 <select
+                                    className={selectStyle}
                                     key={field.name}
                                     {...field.attributes}
                                     {...register(field.name)}
                                     disabled={field.attributes.disabled}
                                 >
-                                    {field.options.map((option) => (
-                                        <option key={option.value} value={option.value}>
-                                            {option.label}
-                                        </option>
-                                    ))}
+                                    {field.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                                 </select>
                             );
                         case "textarea":
@@ -70,6 +69,13 @@ function Editable<T extends { id?: number }>({ create, update, fields, done, onS
                                     {...field.attributes}
                                     {...register(field.name)}
                                 />
+                            );
+                        case "p":
+                            return (
+                                <p
+                                    key={field.name}
+                                    {...field.attributes}
+                                >{field.content}</p>
                             );
                     } 
                 }

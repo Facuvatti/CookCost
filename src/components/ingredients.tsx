@@ -5,7 +5,7 @@ import ListElements from "./listElements"
 import useEntityList from "../hooks/useEntityList"
 import { useState } from "react"
 // Tailwind styles
-import { modifyStyle, removeStyle, rowStyle, tdStyle, addIngredientStyle  } from "../tailwind"
+import { modifyStyle, removeStyle, rowStyle, tdStyle, addIngredientStyle  } from "../tailwind.ts"
 // Types
 import type { IngredientType } from "../types/ingredients"
 import type { FieldConfig, WithId, OptionalId } from "../types/shared"
@@ -30,6 +30,7 @@ function Ingredient({ingredient, onCreate, onUpdate, onDelete}: IngredientProps)
         <tr className={rowStyle}>
             <td colSpan={3}>
                 <Editable<OptionalId<IngredientType>> 
+                    initialValues={ingredient}
                     update={onUpdate} 
                     create={onCreate} 
                     fields={form} 
@@ -85,17 +86,14 @@ function Ingredients() {
                                     onDelete={onDelete}
                                 />
                             } 
-                            api={{
-                                create: ingredientsApi.create,
-                                update: ingredientsApi.update,
-                                delete: ingredientsApi.del
-                            }}
+                            api={ingredientsApi}
                         />
                     }
                     {addIngredient && (
                         <tr className={rowStyle}>
                             <td colSpan={3}>
                                 <Editable<OptionalId<IngredientType>> 
+                                    initialValues={{name: "", price: "", unit: ""}}
                                     update={async (id, data) => {
                                         const updated = await ingredientsApi.update(id, data);
                                         updateItem(id,updated);

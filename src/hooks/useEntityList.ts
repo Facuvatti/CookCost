@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react"
 type UseEntityListOptions<T> = {
-  fetchAll: () => Promise<T[]>
+  fetchAll?: () => Promise<T[]>
+  data?: T[]
 }
-export function useEntityList<T extends { id: number }>({ fetchAll }: UseEntityListOptions<T>) {
+export function useEntityList<T extends { id: number }>({ fetchAll, data }: UseEntityListOptions<T>) {
 	const [items, setItems] = useState<T[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [isAdding, setIsAdding] = useState(false);
-
+	
 	useEffect(() => {
 		let alive = true;
 
 		async function load() {
-			const data = await fetchAll();
+			let result = data;
+			if(fetchAll && result == undefined) result = await fetchAll();
 			if (alive) {
-				setItems(data);
+				if(result) setItems(result);
 				setLoading(false);
 			}
 		}
@@ -22,7 +24,7 @@ export function useEntityList<T extends { id: number }>({ fetchAll }: UseEntityL
 		return () => {
 			alive = false;
 		}
-	}, [fetchAll])
+	}, [fetchAll, data]);
 
 	function updateItem(id: number, updated: T) {
 		setItems(prev =>

@@ -1,6 +1,6 @@
 type EntityBase = {
-  id?: number
-}
+	id?: number
+};
 export type IngredientType = EntityBase & {
     name: string,
     price: string,

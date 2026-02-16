@@ -21,12 +21,18 @@ type ButtonField<T> = BaseField<T> & {
     kind: "button";
     attributes: React.ButtonHTMLAttributes<HTMLButtonElement>;
 } 
+type PField<T> = BaseField<T> & {
+    kind: "p";
+    attributes: React.HTMLAttributes<HTMLParagraphElement>;
+    content: React.ReactNode;
+}
 
 export type FieldConfig<T> =
     | InputField<T>
     | TextAreaField<T>
     | SelectField<T>
-    | ButtonField<T>;
+    | ButtonField<T>
+    | PField<T>
 export type WithId<T> = T & { id: number }
 export type WithoutId<T> = Omit<T, "id">
 export type OptionalId<T> = T & { id?: number }

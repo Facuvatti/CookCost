@@ -1,7 +1,7 @@
 type method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 const backend = "http://localhost:3000/";
 
-async function httpRequest(endpoint:string,method:method,body:Record<string,unknown> | null=null,url=backend,credentials:boolean=false) { // Es un handler para formularios
+async function httpRequest(endpoint:string,method:method,body:Record<string,unknown> | null=null,url=backend,credentials:boolean=false) {
     const options:RequestInit = {
         method: method,
         headers: {

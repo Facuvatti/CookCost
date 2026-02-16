@@ -1,9 +1,12 @@
-export type RecipeIngredient = {
-    [key: string]:{
-        id: number,
-        quantity: number,
-    }
+export type RecipeIngredientType = {
+    id: number,
+    ingredient: number,
+    quantity: number,
+    name?: string,
+    unit?: string
 }
 export interface RecipeType {
-    [key: string]: RecipeIngredient[];
+    id: number,
+    name: string,
+    ingredients?: RecipeIngredientType[]
 }

@@ -1,15 +1,17 @@
+import type { WithoutId } from "../types/shared"
+
 type api<T> = {
-  create: (item: T) => Promise<unknown>
-  update: (id: number, changes: T) => Promise<unknown>
-  delete: (id: number) => Promise<unknown>
+  create: (item: WithoutId<T>, id?: number) => Promise<unknown>
+  update: (changes: T) => Promise<unknown>
+  del: (id: number) => Promise<unknown>
 }
 type ListElementsProps<T extends { id: number }> = {
   elements: T[]
   setElements: React.Dispatch<React.SetStateAction<T[]>>
   renderElement: (
     element: T,
-    onCreate: (item: T) => void,
-    onUpdate: (id: number, item: T) => void,
+    onCreate: (item: WithoutId<T>) => void,
+    onUpdate: (item: T) => void,
     onDelete: (id: number) => void
   ) => React.ReactNode
   api: api<T>
@@ -20,21 +22,23 @@ const ListElements = <T extends { id: number },>(
 ) => {
   const { elements, setElements, renderElement, api } = props
 
-  function handleUpdate(id: number,updated: T) {
+  function handleUpdate(updated: T) {
     setElements(prev =>
-      prev.map(e => e.id === id ? updated : e)
+      prev.map(e => e.id === updated.id ? updated : e)
     )
-    api.update?.(id, updated)
+    api.update?.(updated)
   }
-  function handleCreate(item: T) {
-    setElements(prev => [...prev, item])
-    api.create?.(item)
+  function handleCreate(item: WithoutId<T>, id?: number) {
+    let result;
+    if(id) result = api.create?.(item, id)
+      else result = api.create?.(item)
+    setElements(prev => [...prev, result as unknown as T])
   }
   function handleDelete(id: number) {
     setElements(prev =>
       prev.filter(e => e.id !== id)
     )
-    api.delete?.(id)
+    api.del?.(id)
   }
 
   return (
