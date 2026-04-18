@@ -33,7 +33,8 @@ function RecipeIngredient({ingredient, onCreate, onUpdate, onDelete, options}: R
         { kind: "input", name: "quantity", attributes: { type: "text", placeholder: "Cantidad", required: true} }, 
         { kind:"p", name:"unit", attributes: {className:"font-medium text-gray-900 dark:text-white"}, content: ingredient.unit},
     ];
-    if(isEditing && !isDone) return (
+    
+    if(isEditing && !isDone || Object.values(ingredient).every(value => value === null)) return (
         <tr className={rowStyle}>
             <td colSpan={3}>
                 <Editable<RecipeIngredientType> 
@@ -42,11 +43,12 @@ function RecipeIngredient({ingredient, onCreate, onUpdate, onDelete, options}: R
                     create={onCreate} 
                     fields={editIngredient} 
                     done={()=>done(true)}
+                    onSuccess={()=><RecipeIngredient ingredient={ingredient} onCreate={onCreate} onUpdate={onUpdate} onDelete={onDelete} options={options}></RecipeIngredient>}
                 />
             </td>
         </tr>
     )
-    if(isDone === true && isEditing) {setIsEditing(false); done(undefined)}
+    if(isDone === true && isEditing && Object.values(ingredient).every(value => value !== null)) {setIsEditing(false); done(undefined)}
     return (
         <tr className={rowStyle} data-id={ingredient.id}>
             <td className={tdStyle + " font-medium text-gray-900 dark:text-white"}>{ingredient.name}</td>
@@ -92,6 +94,7 @@ function Recipe({recipe, onCreate, onUpdate, onDelete}:RecipeComponent) {
             create={onCreate} 
             fields={editRecipe} 
             done={()=>done(true)}
+            onSuccess={()=><Recipe recipe={recipe} onCreate={onCreate} onUpdate={onUpdate} onDelete={onDelete}></Recipe>}
         />
     )
     if(isDone === true && isEditing) {setIsEditing(false); done(undefined)}
@@ -155,6 +158,16 @@ function Recipe({recipe, onCreate, onUpdate, onDelete}:RecipeComponent) {
                                             update={recipesApi.updateIngredient}
                                             initialValues={{}}
                                             done={() => setAddIngredient(false)}
+                                            onSuccess={(element,create,update) =>{
+                                                if(element && create && update)
+                                                return <RecipeIngredient 
+                                                    ingredient={element} 
+                                                    onCreate={create} 
+                                                    onUpdate={update} 
+                                                    onDelete={onDelete} 
+                                                    options={filteredOptions}
+                                                    ></RecipeIngredient>
+                                            }}
                                         />
                                     </div>
                                 </td>

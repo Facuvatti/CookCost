@@ -37,7 +37,6 @@ app.get("/ingredients", (req, res) => {
 });
 // - ONE -
 app.get("/ingredients/:id", (req, res) => {
-
 	const ingredientId = req.params.id;
 	const query = "SELECT * FROM ingredients WHERE id = ?";
 	connection.query(query, [ingredientId], (err, results) => {

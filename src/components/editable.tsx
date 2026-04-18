@@ -7,7 +7,7 @@ type EditableProps<T> = {
     update: (item: T) => unknown,
     fields: FieldConfig<T>[],
     done: () => void,
-    onSuccess?: () => void
+    onSuccess?: (element?: T, create?: (item: WithoutId<T>) => void, update?: (item: T) => void) => unknown
 }
 function Editable<T extends { id?: number }>({ initialValues, create, update, fields, done, onSuccess}: EditableProps<T>) {
     const {
@@ -22,7 +22,7 @@ function Editable<T extends { id?: number }>({ initialValues, create, update, fi
             if (data.id) await update(data);
             else await create(data);
             done();
-            onSuccess?.();
+            return onSuccess?.(data,create,update);
         // No uses window.location.reload() - maneja el estado
         } catch (error) {
         console.error("Error saving:", error);
